@@ -1,0 +1,292 @@
+// Copyright 2015 gRPC authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+syntax = "proto3";
+option java_multiple_files = true;
+
+package sdccFoodDelivery;
+
+// -----------------Cart service-----------------
+
+service OrderService {
+  rpc AddItem(AddItemRequest) returns (Empty) {}
+  rpc GetCart(GetCartRequest) returns (Cart) {}
+  rpc EmptyCart(EmptyCartRequest) returns (Empty) {}
+}
+
+message CartItem {
+  string product_id = 1;
+  int32  quantity = 2;
+  float price = 3;
+}
+
+message AddItemRequest {
+  string user_id = 1;
+  string restaurant_id = 2;
+  CartItem item = 3;
+}
+
+message EmptyCartRequest {
+  string user_id = 1;
+}
+
+message GetCartRequest {
+  string user_id = 1;
+}
+
+message Cart {
+  string user_id = 1;
+  string restaurant_id = 2;
+  repeated CartItem items = 3;
+}
+
+message Empty {}
+
+
+// -----------------CheckOut service-----------------
+
+service checkoutService {
+  //ask for a name restaurants infos
+  rpc executeTransaction (TransactionInfo) returns (TransactionOutcome) {}
+
+}
+
+message MenuItem {
+  string product_id = 1;
+  int32  quantity = 2;
+  float price = 3;
+}
+
+message TransactionInfo{
+  string userID = 1;
+  string restaurantID = 2;
+  repeated MenuItem items = 3;
+  string cardNumber = 4;
+  string cvc = 5;
+  string cardExpiration = 6;
+}
+
+message TransactionOutcome{
+  bool isSuccessful = 1;
+}
+
+
+// -----------------Restaurant service-----------------
+
+service restaurantService {
+  //ask for a name restaurants infos
+  rpc getRestaurantInfoByName (RestaurantRequestName) returns (stream RestaurantMessage) {}
+
+  rpc getRestaurantInfoByAddress (RestaurantRequestAddress) returns (stream RestaurantMessage) {}
+
+  rpc getRestaurantInfoByCity (RestaurantRequestCity) returns (stream RestaurantMessage) {}
+
+  rpc getRestaurantInfoByTAG (RestaurantRequestTAG) returns (stream RestaurantMessage) {}
+
+  rpc getRestaurantMenu (RestaurantRequestID) returns (stream RestaurantMessageMenu) {}
+
+  rpc getAllRestaurants (RestaurantsRequest) returns (stream RestaurantMessage) {}
+
+  rpc getRestaurantInfoById (RestaurantRequestID) returns (RestaurantMessage){}
+
+  //delete restaurant by id
+  rpc deleteRestaurant (DeleteRestaurantRequest) returns (CommitOK){}
+
+  //modify restaurant by ID
+  rpc modifyRestaurant (ModifyRestaurantRequest) returns (CommitOK){}
+
+  //add new restaurant
+  rpc addRestaurant(AddRestaurantRequest) returns (CommitOK){}
+}
+
+message RestaurantRequestName{
+  string name =  1;
+}
+
+message TAG{
+  string tag1 = 1;
+  string tag2 = 2;
+  string tag3 = 3;
+}
+message RestaurantMessage {
+  string id = 1;
+  string name = 2;
+  string city = 3;
+  string address = 4;
+  TAG TAG = 5;
+}
+
+message RestaurantMessageMenu {
+  string type = 1;
+  RestaurantMenuItem menuItem = 2;
+}
+
+message RestaurantMenuItem{
+  string name = 1;
+  string description = 2;
+  double price = 3;
+}
+
+message RestaurantRequestCity{
+  string city =  1;
+}
+
+message RestaurantRequestAddress{
+  string address =  1;
+}
+
+message RestaurantRequestTAG{
+  TAG TAG =  1;
+}
+
+message RestaurantRequestID{
+  string id =  1;
+}
+
+message RestaurantsRequest{
+  string message = 1;
+}
+
+message AddRestaurantRequest{
+  string name = 1;
+  string city = 2;
+  string address = 3;
+  TAG TAG = 4;
+}
+
+message DeleteRestaurantRequest{
+  string id = 1;
+}
+
+message ModifyRestaurantRequest{
+  string id = 1;
+  string name = 2;
+  string city = 3;
+  string address = 4;
+  TAG TAG = 5;
+}
+
+message CommitOK{
+  bool ok = 1;
+}
+
+
+// -----------------User service-----------------
+service sdcc_user_service{
+
+  rpc save (UserInfoMessage) returns (BooleanMessage){}
+
+  rpc deleteByID (IDMessage) returns (BooleanMessage) {}
+
+  rpc findByID (IDMessage) returns (UserMessage){}
+
+  rpc updateUsername (UpdateUsernameMessage) returns (BooleanMessage) {}
+
+  rpc updatePassword (UpdatePasswordMessage) returns (BooleanMessage) {}
+
+  rpc updateAddress (UpdateAddressMessage) returns (BooleanMessage) {}
+
+  rpc updateMail (UpdateMailMessage) returns (BooleanMessage) {}
+
+  rpc updatePaymentMethod(UpdatePaymentMessage) returns (BooleanMessage){}
+
+  rpc updatePreferiti(UpdatePreferitiMessage) returns (BooleanMessage) {}
+
+  rpc getUserPreferitiByID (IDMessage) returns (stream PreferitiMessage) {}
+
+}
+
+message BooleanMessage{
+  bool ok = 1;
+}
+
+message IDMessage{
+  int32 id = 1;
+}
+
+message UserInfoMessage{
+  string username = 1;
+  string password = 2;
+  string address = 3;
+  string mail = 4;
+  string creditCardNumber = 5;
+  string deadline = 6;
+  string threeDigitCode = 7;
+}
+
+message UpdateUsernameMessage{
+  string newUsername = 1;
+  int32 id = 2;
+}
+message UpdatePasswordMessage{
+  string newPassword = 1;
+  int32 id = 2;
+}
+
+message UpdateAddressMessage{
+  string newAddress = 1;
+  int32 id = 2;
+}
+
+message UpdateMailMessage{
+  string newMail = 1;
+  int32 id = 2;
+}
+
+message UpdatePaymentMessage{
+  CreditCard creditCard = 1;
+  int32 id = 2;
+}
+
+message UpdatePreferitiMessage{
+  string newPreferito = 1;
+  int32 id = 2;
+}
+
+message PreferitiMessage{
+  string preferito = 1;
+}
+
+message UserMessage{
+  int32 id = 1;
+  string username = 2;
+  string password = 3;
+  string address = 4;
+  string mail = 5;
+  CreditCard creditCard = 6;
+  PreferitiMessage preferito = 7;
+}
+
+message CreditCard {
+  string creditCardNumber = 1;
+  string deadLine = 2;
+  string threeDigitCode = 3;
+}
+
+// -----------------Mail service-----------------
+service sdcc_mail_service{
+  rpc getUserMail (IDMessage) returns (UserMessage) {}
+
+  rpc sendMail (TagMessage) returns (BooleanMessage){}
+}
+
+message TagMessage{
+  string tag = 1;
+}
+
+
+
+// -----------------Recommendation service-----------------
+
+
