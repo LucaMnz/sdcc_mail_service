@@ -1,7 +1,10 @@
 package service;
 
 import controller.MailController;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import model.Mail;
+import sdccFoodDelivery.*;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -98,7 +101,19 @@ public class MailService implements MailServiceInterface {
     }
 
     private String getUserMail(int userID) {
-        //TODO: grpc call to user service
-        return null;
+        final ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
+                .usePlaintext()
+                .build();
+        sdcc_user_serviceGrpc.sdcc_user_serviceBlockingStub blockingStub = sdcc_user_serviceGrpc.newBlockingStub(channel);
+
+        UserMessage response;
+        IDMessage request = IDMessage.newBuilder().setId(userID).build();
+
+        response = blockingStub.findByID(request);
+        channel.shutdown();
+        if (response == null){
+            return null;
+        }
+        return response.getMail();
     }
 }
